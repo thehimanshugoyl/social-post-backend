@@ -17,4 +17,6 @@ public interface DlqManagementService {
     DlqMessage markResolved(Long id, String resolutionNotes);
 
     void replayDlqMessage(Long id);
+
+    int replayAllUnresolvedMessages();
 }

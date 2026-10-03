@@ -95,4 +95,21 @@ public class DlqManagementServiceImpl implements DlqManagementService {
             throw new RuntimeException("Failed to replay DLQ message: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    @Transactional
+    public int replayAllUnresolvedMessages() {
+        List<DlqMessage> unresolved = dlqMessageRepository.findByResolvedFalse();
+        int count = 0;
+        for (DlqMessage msg : unresolved) {
+            try {
+                replayDlqMessage(msg.getId());
+                count++;
+            } catch (Exception e) {
+                log.error("[DLQ-BulkReplay] Failed to replay message id: {}", msg.getId(), e);
+            }
+        }
+        log.info("[DLQ-BulkReplay] Completed bulk replay of {} messages.", count);
+        return count;
+    }
 }

@@ -28,7 +28,8 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 
 | Experiment | Title | Conceptual Focus | Test Suite |
 | :--- | :--- | :--- | :--- |
-| **Exp 3.1.1** | **Event-Driven Kafka & Reliability Mechanisms** | Asynchronous Post Scheduling, Exponential Backoff Retries, Dead-Letter Queues (DLQ), Idempotency Pattern via Event Tracking | `KafkaReliabilityIntegrationTest`, `KafkaEventControllerIntegrationTest` |
+| **Exp 3.1.1** | **Event-Driven Kafka & Reliability Mechanisms** | Asynchronous Post Scheduling, Exponential Backoff Retries, Dead-Letter Queues (DLQ), Idempotency Pattern via Event Tracking (CO2-BT2, CO3-BT3, CO5-BT5) | `KafkaReliabilityIntegrationTest`, `KafkaEventControllerIntegrationTest` |
+| **Exp 3.1.2** | **Advanced Reliability & Fault-Tolerance Evaluation** | Concurrent Race Condition Idempotency, Poison-Pill Isolation, Bulk DLQ Remediation & Replay, Reliability Observability Metrics (CO5-BT5, CO6-BT6) | `KafkaAdvancedReliabilityIntegrationTest` |
 
 ---
 
@@ -99,11 +100,15 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 ```bash
 ./mvnw clean test
 ```
-*Executes all 36 unit and integration tests across REST, Validation, Logging, Pagination, Caching, JWT Security, AES-256 Encryption, and Kafka Reliability (Asynchronous Events, Exponential Backoff, DLQ, Idempotency).*
+*Executes all 40 unit and integration tests across REST, Validation, Logging, Pagination, Caching, JWT Security, AES-256 Encryption, Kafka Asynchronous Events (Exp 3.1.1), and Advanced Fault-Tolerance & Concurrent Idempotency (Exp 3.1.2).*
 
 ### Running Kafka Reliability Tests Specifically
 ```bash
+# Exp 3.1.1: Core Reliability (Producer/Consumer, Backoff, DLQ, Idempotency)
 ./mvnw test -Dtest=KafkaReliabilityIntegrationTest
+
+# Exp 3.1.2: Advanced Reliability (Concurrent Race Condition Idempotency, Poison Pills, Bulk DLQ Replay)
+./mvnw test -Dtest=KafkaAdvancedReliabilityIntegrationTest
 ```
 
 ### Starting Apache Kafka & Kafka-UI via Docker (KRaft Mode)

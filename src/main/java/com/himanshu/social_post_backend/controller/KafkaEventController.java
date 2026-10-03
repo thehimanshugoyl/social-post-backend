@@ -39,16 +39,22 @@ public class KafkaEventController {
     private final ScheduledPostProducerService producerService;
     private final IdempotencyService idempotencyService;
     private final DlqManagementService dlqManagementService;
+    private final com.himanshu.social_post_backend.consumer.ScheduledPostConsumer scheduledPostConsumer;
+    private final com.himanshu.social_post_backend.consumer.ScheduledPostDlqConsumer scheduledPostDlqConsumer;
 
     @Value("${app.kafka.topics.scheduled-posts:social-scheduled-posts}")
     private String scheduledPostsTopic;
 
     public KafkaEventController(ScheduledPostProducerService producerService,
                                 IdempotencyService idempotencyService,
-                                DlqManagementService dlqManagementService) {
+                                DlqManagementService dlqManagementService,
+                                com.himanshu.social_post_backend.consumer.ScheduledPostConsumer scheduledPostConsumer,
+                                com.himanshu.social_post_backend.consumer.ScheduledPostDlqConsumer scheduledPostDlqConsumer) {
         this.producerService = producerService;
         this.idempotencyService = idempotencyService;
         this.dlqManagementService = dlqManagementService;
+        this.scheduledPostConsumer = scheduledPostConsumer;
+        this.scheduledPostDlqConsumer = scheduledPostDlqConsumer;
     }
 
     /**
@@ -198,5 +204,40 @@ public class KafkaEventController {
         return idempotencyService.getEvent(eventId)
                 .map(event -> ResponseEntity.ok(ApiResponse.ok(event, "Found idempotency event record")))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    /**
+     * Retrieves comprehensive system reliability and fault-tolerance metrics (Exp 3.1.2 - CO5/CO6).
+     */
+    @GetMapping("/metrics")
+    public ResponseEntity<ApiResponse<com.himanshu.social_post_backend.dto.response.KafkaReliabilityMetricsResponse>> getReliabilityMetrics() {
+        long processed = scheduledPostConsumer.getProcessedCount();
+        long duplicates = scheduledPostConsumer.getDuplicateSkipCount();
+        long retries = scheduledPostConsumer.getRetryAttemptCount();
+        List<DlqMessage> allDlq = dlqManagementService.getAllDlqMessages();
+        long dlqCount = allDlq.size();
+        long dlqResolved = allDlq.stream().filter(DlqMessage::isResolved).count();
+        long dlqUnresolved = dlqCount - dlqResolved;
+        String health = (dlqUnresolved > 10) ? "DEGRADED" : "OPTIMAL";
+
+        com.himanshu.social_post_backend.dto.response.KafkaReliabilityMetricsResponse metrics =
+                new com.himanshu.social_post_backend.dto.response.KafkaReliabilityMetricsResponse(
+                        processed, duplicates, retries, dlqCount, dlqResolved, dlqUnresolved, health
+                );
+
+        return ResponseEntity.ok(ApiResponse.ok(metrics, "Kafka reliability diagnostic metrics retrieved"));
+    }
+
+    /**
+     * Performs bulk replay of all unresolved dead-letter queue messages for incident remediation.
+     */
+    @PostMapping("/dlq/replay-all")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> replayAllDlqMessages() {
+        int replayedCount = dlqManagementService.replayAllUnresolvedMessages();
+        Map<String, Object> result = new HashMap<>();
+        result.put("replayedCount", replayedCount);
+        result.put("status", "SUCCESS");
+        result.put("message", "All unresolved DLQ events re-queued for execution.");
+        return ResponseEntity.ok(ApiResponse.ok(result, "Bulk DLQ replay triggered successfully"));
     }
 }

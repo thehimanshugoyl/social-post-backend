@@ -43,6 +43,33 @@ public class IdempotencyServiceImpl implements IdempotencyService {
 
     @Override
     @Transactional
+    public boolean tryClaimEventProcessing(String eventId, String eventType, String correlationId) {
+        if (eventId == null || eventId.isBlank()) {
+            return false;
+        }
+        if (processedEventRepository.existsByEventId(eventId)) {
+            markEventDuplicateSkipped(eventId);
+            return false;
+        }
+        try {
+            ProcessedEvent newEvent = new ProcessedEvent(
+                    eventId,
+                    eventType != null ? eventType : "SCHEDULED_POST",
+                    null,
+                    ProcessedEventStatus.PROCESSED,
+                    correlationId
+            );
+            processedEventRepository.saveAndFlush(newEvent);
+            return true;
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            log.warn("[Idempotency] Concurrent race condition safely intercepted for eventId: '{}'. Skipping duplicate.", eventId);
+            markEventDuplicateSkipped(eventId);
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
     public ProcessedEvent registerEventReceived(String eventId, String eventType, String aggregateId, String correlationId) {
         return processedEventRepository.findByEventId(eventId)
                 .map(existing -> {

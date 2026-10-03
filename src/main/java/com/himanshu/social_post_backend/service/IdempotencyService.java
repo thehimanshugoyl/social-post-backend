@@ -11,6 +11,8 @@ public interface IdempotencyService {
 
     boolean isEventProcessed(String eventId);
 
+    boolean tryClaimEventProcessing(String eventId, String eventType, String correlationId);
+
     ProcessedEvent registerEventReceived(String eventId, String eventType, String aggregateId, String correlationId);
 
     void markEventSuccess(String eventId, String aggregateId, String details);
