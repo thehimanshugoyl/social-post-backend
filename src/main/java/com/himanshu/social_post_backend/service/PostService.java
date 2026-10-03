@@ -1,73 +1,29 @@
 package com.himanshu.social_post_backend.service;
 
-import com.himanshu.social_post_backend.dto.PostRequest;
-import com.himanshu.social_post_backend.dto.PostResponse;
-import com.himanshu.social_post_backend.model.Post;
-import com.himanshu.social_post_backend.repository.PostRepository;
-import com.himanshu.social_post_backend.exception.ResourceNotFoundException;
-import org.springframework.stereotype.Service;
+import com.himanshu.social_post_backend.dto.request.CreatePostRequest;
+import com.himanshu.social_post_backend.dto.request.UpdatePostRequest;
+import com.himanshu.social_post_backend.dto.response.PostResponse;
+import com.himanshu.social_post_backend.model.PostStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+public interface PostService {
 
-@Service
-public class PostService {
+    PostResponse createPost(CreatePostRequest request);
 
-    private final PostRepository postRepository;
+    PostResponse getPostById(Long id);
 
-    public PostService(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+    PostResponse getPostBySlug(String slug);
 
-    public PostResponse createPost(PostRequest request) {
-        Post post = new Post();
-        post.setText(request.getText());
-        post.setPlatformIds(request.getPlatformIds());
-        post.setStatus("draft");
+    Page<PostResponse> getPosts(PostStatus status, String keyword, Pageable pageable);
 
-        Post saved = postRepository.save(post);
-        return toResponse(saved);
-    }
+    PostResponse updatePost(Long id, UpdatePostRequest request);
 
-    public List<PostResponse> getAllPosts() {
-        return postRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
+    PostResponse updatePostStatus(Long id, PostStatus status);
 
-    public PostResponse getPostById(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
-        return toResponse(post);
-    }
+    void deletePost(Long id);
 
-    public PostResponse updatePost(Long id, PostRequest request) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
+    java.util.List<PostResponse> getAllPostsWithCommentsEager();
 
-        post.setText(request.getText());
-        post.setPlatformIds(request.getPlatformIds());
-
-        Post updated = postRepository.save(post);
-        return toResponse(updated);
-    }
-
-    public void deletePost(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Post not found with id: " + id);
-        }
-        postRepository.deleteById(id);
-    }
-
-    private PostResponse toResponse(Post post) {
-        return new PostResponse(
-                post.getId(),
-                post.getText(),
-                post.getPlatformIds(),
-                post.getStatus(),
-                post.getScheduledAt(),
-                post.getCreatedAt(),
-                post.getUpdatedAt()
-        );
-    }
+    java.util.List<com.himanshu.social_post_backend.dto.response.AuthorStatsProjection> getAuthorAnalytics();
 }

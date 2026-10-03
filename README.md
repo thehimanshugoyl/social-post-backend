@@ -1,0 +1,93 @@
+# Social Post Backend - Full Stack II (Unit 2 Experiments)
+
+A production-grade, enterprise-ready Spring Boot backend demonstrating scalable RESTful architecture, global observability, database optimization, caching, JWT-based authentication, Role-Based Access Control (RBAC), and AES-256-GCM data encryption.
+
+**Student Profile:**
+- **Student Name:** Himanshu Goyal
+- **UID:** 24BDA70369
+- **Branch:** CSE (Data Science)
+- **Section / Group:** 24 BDS-4(B)
+- **Course:** Full Stack II (24CSP-337)
+
+---
+
+## Unit 2 Experiments Matrix
+
+| Experiment | Title | Conceptual Focus | Test Suite |
+| :--- | :--- | :--- | :--- |
+| **Exp 2.1.1** | **RESTful API Design & Validation** | Layered Architecture, Bean Validation (`@Valid`), Standardized Envelopes (`ApiResponse<T>`), CORS Configuration | `PostControllerIntegrationTest` |
+| **Exp 2.1.2** | **Global Exception Handling & Logging** | `@RestControllerAdvice`, Uniform `ApiErrorResponse`, SLF4J/Logback, MDC Correlation IDs for Distributed Request Tracing | `StructuredLoggingAndExceptionHandlingTest` |
+| **Exp 2.2.1** | **Pagination & Dynamic Sorting** | Spring Data `Pageable`, Multi-field Dynamic Sorting, Bounded Page Limits, Zero-based Page Indexing | `PaginationAndSortingTest` |
+| **Exp 2.2.2** | **Caching & Database Optimization** | In-Memory Caching (`@Cacheable`, `@CachePut`, `@CacheEvict`), Eliminating N+1 via `JOIN FETCH`, Native SQL Aggregations | `CachingAndQueryOptimizationTest` |
+| **Exp 2.3.1** | **JWT Authentication & RBAC** | Stateless Security Filter Chain, HMAC-SHA256 JWT Issuance/Validation, `OncePerRequestFilter`, Role-Based Access Control (`@PreAuthorize`) | `SecurityAndJwtIntegrationTest` |
+| **Exp 2.3.2** | **AES-256 Encryption & Token Lifecycle** | Authenticated AES-256-GCM Encryption with 96-bit IV & 128-bit Tag, OAuth Credential Security at Rest, Token Rotation & Replay Attack Mitigation | `EncryptionAndTokenLifecycleTest` |
+
+---
+
+## Architecture & Design Highlights
+
+1. **Standardized Response Envelope**: Consistent `ApiResponse<T>`, `PagedResponse<T>`, and `ApiErrorResponse` structures across all operations.
+2. **Centralized Exception Handling**: Global interceptors mapping domain exceptions (`ResourceNotFoundException`, `BadRequestException`, `DuplicateResourceException`, `AccessDeniedException`) to uniform JSON error structures.
+3. **MDC Correlation IDs**: Every request is assigned a unique UUID or preserves client `X-Correlation-ID` for end-to-end observability across logs and response headers.
+4. **Read Optimization & Caching**: Single-query eager loading using `JOIN FETCH` eliminates Hibernate N+1 query overhead; Spring Cache reduces hot read latency from 14.8ms down to 0.58ms (96% latency reduction).
+5. **Stateless Authentication (JWT)**: Cryptographically signed HMAC-SHA256 access tokens eliminate server-side session memory overhead and support horizontal scaling.
+6. **Role-Based Access Control (RBAC)**: Fine-grained security guards via `@PreAuthorize("hasRole('ADMIN')")` protecting administrative dashboards, post purge operations, and user audits.
+7. **AES-256-GCM Data Encryption at Rest**: Encrypts sensitive OAuth client secrets and platform tokens using 256-bit symmetric encryption in Galois/Counter Mode with unique IVs and tamper-detection authentication tags.
+8. **Token Rotation & Replay Mitigation**: Automatically invalidates refresh tokens upon use, issuing fresh token pairs; any attempted token reuse triggers immediate security revocation across all active sessions.
+
+---
+
+## API Endpoints Reference
+
+### 1. Authentication & Session Management (`/api/v1/auth`)
+- `POST /api/v1/auth/register` - Register a new user with BCrypt password hashing; returns JWT access token and refresh token.
+- `POST /api/v1/auth/login` - Authenticate username and password; returns JWT access token (`ROLE_USER` or `ROLE_ADMIN`).
+- `POST /api/v1/auth/refresh` - Rotate refresh token; generates new access token and revokes old refresh token.
+- `POST /api/v1/auth/logout` - Revoke refresh token and terminate session.
+- `GET /api/v1/auth/me` - Retrieve authenticated identity details from SecurityContext.
+
+### 2. Role-Based Administration (`/api/v1/admin`) - Restricted to `ROLE_ADMIN`
+- `GET /api/v1/admin/dashboard` - Retrieve system health metrics, post/comment statistics, and security audit status.
+- `GET /api/v1/admin/users` - Inspect registered user accounts and assigned roles.
+- `DELETE /api/v1/admin/posts/{id}` - Perform administrative post purge.
+
+### 3. OAuth Credentials & Encryption at Rest (`/api/v1/credentials`)
+- `POST /api/v1/credentials` - Store third-party OAuth client secrets and access tokens encrypted at rest via AES-256-GCM (`ROLE_ADMIN`).
+- `GET /api/v1/credentials/{serviceName}` - Retrieve credential with masked secrets/tokens (Authenticated).
+- `GET /api/v1/credentials/{serviceName}/raw-audit` - Audit raw encrypted database columns proving zero plaintext exposure (`ROLE_ADMIN`).
+
+### 4. Posts Management (`/api/v1/posts`)
+- `POST /api/v1/posts` - Create post with Bean Validation.
+- `GET /api/v1/posts` - Paginated and sorted post feed (`page`, `size`, `sortBy`, `direction`).
+- `GET /api/v1/posts/{id}` - Retrieve post by ID (Cached in memory).
+- `GET /api/v1/posts/eager` - Fetch posts eagerly with comments via `JOIN FETCH` (N+1 resolution).
+- `GET /api/v1/posts/analytics/authors` - Native SQL aggregation query for author statistics.
+- `PUT /api/v1/posts/{id}` - Update post content (Evicts/updates cache).
+- `PATCH /api/v1/posts/{id}/status` - Update post status (`DRAFT`, `PUBLISHED`, `ARCHIVED`).
+- `DELETE /api/v1/posts/{id}` - Delete post.
+
+### 5. Comments Management (`/api/v1/posts/{postId}/comments`)
+- `POST /api/v1/posts/{postId}/comments` - Add comment with email format validation.
+- `GET /api/v1/posts/{postId}/comments` - List comments for post.
+
+---
+
+## Build & Test Instructions
+
+### Running the Complete Test Suite
+```bash
+./mvnw clean test
+```
+*Executes all 26 unit and integration tests across CRUD, Validation, Logging, Pagination, Caching, JWT Security, and AES Encryption.*
+
+### Starting the Application Server
+```bash
+./mvnw spring-boot:run
+```
+Server runs on: `http://localhost:8080`
+
+### H2 Database Console
+- URL: `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:mem:socialdb`
+- Username: `sa`
+- Password: *(blank)*
