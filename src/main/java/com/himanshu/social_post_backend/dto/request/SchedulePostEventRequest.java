@@ -19,6 +19,10 @@ public class SchedulePostEventRequest {
 
     private Set<String> tags;
 
+    private String channel;
+
+    private java.time.Instant scheduledAt;
+
     private String failureMode; // "NONE", "TRANSIENT", "FATAL"
 
     private String customEventId; // For testing idempotency deduplication
@@ -97,5 +101,21 @@ public class SchedulePostEventRequest {
 
     public void setCustomEventId(String customEventId) {
         this.customEventId = customEventId;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    public java.time.Instant getScheduledAt() {
+        return scheduledAt;
+    }
+
+    public void setScheduledAt(java.time.Instant scheduledAt) {
+        this.scheduledAt = scheduledAt;
     }
 }

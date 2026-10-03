@@ -75,6 +75,12 @@ public class KafkaEventController {
         event.setAuthor(request.getAuthor() != null ? request.getAuthor() : "himanshu");
         event.setTags(request.getTags());
         event.setFailureMode(request.getFailureMode() != null ? request.getFailureMode() : "NONE");
+        if (request.getScheduledAt() != null) {
+            event.setScheduledAt(request.getScheduledAt());
+        }
+        if (request.getChannel() != null) {
+            event.setChannel(request.getChannel());
+        }
 
         producerService.publishScheduledPost(event);
 

@@ -31,6 +31,7 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 | **Exp 3.1.1** | **Event-Driven Kafka & Reliability Mechanisms** | Asynchronous Post Scheduling, Exponential Backoff Retries, Dead-Letter Queues (DLQ), Idempotency Pattern via Event Tracking (CO2-BT2, CO3-BT3, CO5-BT5) | `KafkaReliabilityIntegrationTest`, `KafkaEventControllerIntegrationTest` |
 | **Exp 3.1.2** | **Advanced Reliability & Fault-Tolerance Evaluation** | Concurrent Race Condition Idempotency, Poison-Pill Isolation, Bulk DLQ Remediation & Replay, Reliability Observability Metrics (CO5-BT5, CO6-BT6) | `KafkaAdvancedReliabilityIntegrationTest` |
 | **Exp 3.2.1** | **Continuous Integration (CI) Pipeline** | Automated CI Multi-JDK Build Matrix, Isolated Unit Testing (JUnit 5/Mockito), API Integration (MockMvc), Consumer-Driven Contract Testing (Pact V4), Infrastructure Testing (Testcontainers), Automated GitHub Actions Workflow (CO6-BT6) | `PostServiceUnitTest`, `PostContractTest`, `SocialPostTestcontainersIntegrationTest` |
+| **Exp 3.3.1** | **Full-Stack Application Integration** | React (Vite) Frontend Connection, JWT Authentication Flow, Multi-Channel Composer, Kafka Scheduling Calendar, Native SQL Analytics, Centralized Toast Observability (CO5-BT5, CO6-BT6) | Frontend React Suite (`post-composer`) & REST APIs |
 
 ---
 

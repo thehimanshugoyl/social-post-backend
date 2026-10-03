@@ -20,6 +20,7 @@ public class ScheduledPostEvent implements Serializable {
     private String slug;
     private String content;
     private String author;
+    private String channel;
     private Set<String> tags = new HashSet<>();
     private String action;
     private Instant scheduledAt;
@@ -100,6 +101,14 @@ public class ScheduledPostEvent implements Serializable {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 
     public Set<String> getTags() {
