@@ -30,6 +30,7 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 | :--- | :--- | :--- | :--- |
 | **Exp 3.1.1** | **Event-Driven Kafka & Reliability Mechanisms** | Asynchronous Post Scheduling, Exponential Backoff Retries, Dead-Letter Queues (DLQ), Idempotency Pattern via Event Tracking (CO2-BT2, CO3-BT3, CO5-BT5) | `KafkaReliabilityIntegrationTest`, `KafkaEventControllerIntegrationTest` |
 | **Exp 3.1.2** | **Advanced Reliability & Fault-Tolerance Evaluation** | Concurrent Race Condition Idempotency, Poison-Pill Isolation, Bulk DLQ Remediation & Replay, Reliability Observability Metrics (CO5-BT5, CO6-BT6) | `KafkaAdvancedReliabilityIntegrationTest` |
+| **Exp 3.2.1** | **Continuous Integration (CI) Pipeline** | Automated CI Multi-JDK Build Matrix, Isolated Unit Testing (JUnit 5/Mockito), API Integration (MockMvc), Consumer-Driven Contract Testing (Pact V4), Infrastructure Testing (Testcontainers), Automated GitHub Actions Workflow (CO6-BT6) | `PostServiceUnitTest`, `PostContractTest`, `SocialPostTestcontainersIntegrationTest` |
 
 ---
 
@@ -47,6 +48,9 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 10. **Exponential Backoff Retry Strategy**: Automatically re-attempts transient processing failures with progressive delays, preventing downstream system exhaustion without blocking other message partitions.
 11. **Dead-Letter Queue (DLQ) & Forensics**: Automatically isolates poison pill events and retry-exhausted messages into `social-scheduled-posts.DLT` with full exception stack traces, enabling administrative audit and one-click replay recovery.
 12. **Idempotency via Event Tracking**: Enforces deduplication using an ACID-compliant `processed_events` tracking table, guaranteeing that duplicate messages under Kafka's at-least-once delivery are recognized and skipped with zero side effects.
+13. **Continuous Integration Pipeline & Quality Gate**: Automated GitHub Actions CI workflow executing multi-JDK matrix (Java 17 & Java 21) builds, Maven dependency caching, automated unit, integration, and contract tests, and packaging build artifacts.
+14. **Consumer-Driven Contract Testing (Pact)**: Verifies REST API contracts between consumer frontends and provider backend without spinning up full service environments, generating verified pact contracts in `target/pacts/`.
+15. **Containerized Infrastructure Testing (Testcontainers)**: Dynamically spins up real Docker containers for PostgreSQL and Kafka during integration tests to replicate production environments with zero manual setup.
 
 ---
 
@@ -69,7 +73,7 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 - `GET /api/v1/credentials/{serviceName}` - Retrieve credential with masked secrets/tokens (Authenticated).
 - `GET /api/v1/credentials/{serviceName}/raw-audit` - Audit raw encrypted database columns proving zero plaintext exposure (`ROLE_ADMIN`).
 
-### 4. Event-Driven Kafka Reliability & Scheduled Posts (`/api/v1/events`) - Exp 3.1.1
+### 4. Event-Driven Kafka Reliability & Scheduled Posts (`/api/v1/events`) - Exp 3.1.1 & 3.1.2
 - `POST /api/v1/events/scheduled-posts` - Asynchronously dispatch scheduled post event to Kafka (`202 Accepted`).
 - `POST /api/v1/events/scheduled-posts/idempotent-test` - Emits duplicate events with identical `eventId` to verify deduplication.
 - `POST /api/v1/events/scheduled-posts/simulate-failure?mode=TRANSIENT` - Test exponential backoff retry and DLQ routing (`TRANSIENT` or `FATAL`).
@@ -100,7 +104,19 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 ```bash
 ./mvnw clean test
 ```
-*Executes all 40 unit and integration tests across REST, Validation, Logging, Pagination, Caching, JWT Security, AES-256 Encryption, Kafka Asynchronous Events (Exp 3.1.1), and Advanced Fault-Tolerance & Concurrent Idempotency (Exp 3.1.2).*
+*Executes all 48 unit, integration, contract, and infrastructure tests across Units 2 and 3.*
+
+### Running CI & Contract Tests Specifically (Exp 3.2.1)
+```bash
+# Isolated Unit Tests (JUnit 5 & Mockito)
+./mvnw test -Dtest=PostServiceUnitTest
+
+# Pact Consumer-Driven Contract Tests
+./mvnw test -Dtest=PostContractTest
+
+# Testcontainers Infrastructure Integration Tests
+./mvnw test -Dtest=SocialPostTestcontainersIntegrationTest
+```
 
 ### Running Kafka Reliability Tests Specifically
 ```bash

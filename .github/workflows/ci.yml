@@ -1,0 +1,90 @@
+name: Continuous Integration (CI) Pipeline - Exp 3.2.1
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build, Test & Verify (Java ${{ matrix.java-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ '17', '21' ]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x ./mvnw
+
+      - name: Phase 1 - Compile & Validate Syntax
+        run: ./mvnw clean compile
+
+      - name: Phase 2 - Unit Testing (JUnit 5 & Mockito)
+        run: ./mvnw test -Dtest=PostServiceUnitTest
+
+      - name: Phase 3 - API & Integration Testing (MockMvc & Embedded Kafka)
+        run: |
+          ./mvnw test -Dtest=PostControllerIntegrationTest,KafkaReliabilityIntegrationTest,KafkaEventControllerIntegrationTest
+
+      - name: Phase 4 - Advanced Fault-Tolerance & Stress Testing
+        run: ./mvnw test -Dtest=KafkaAdvancedReliabilityIntegrationTest
+
+      - name: Phase 5 - Consumer-Driven Contract Testing (Pact)
+        run: ./mvnw test -Dtest=PostContractTest
+
+      - name: Phase 6 - Full Build & Package Executable JAR
+        run: ./mvnw package -DskipTests=true
+
+      - name: Publish Test Results & Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-test-reports-java-${{ matrix.java-version }}
+          path: target/surefire-reports/
+          retention-days: 7
+
+      - name: Publish Pact Contract Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pact-contracts-java-${{ matrix.java-version }}
+          path: target/pacts/
+          retention-days: 14
+
+      - name: Publish Production JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-post-backend-jar-java-${{ matrix.java-version }}
+          path: target/*.jar
+          retention-days: 7
+
+  ci-status:
+    name: CI Pipeline Status Summary
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display CI Verification Summary
+        run: |
+          echo "======================================================="
+          echo "  CONTINUOUS INTEGRATION (CI) PIPELINE COMPLETED       "
+          echo "======================================================="
+          echo "  Unit Testing (JUnit 5):        PASSED                "
+          echo "  API Testing (MockMvc):         PASSED                "
+          echo "  Kafka Reliability & DLQ:       PASSED                "
+          echo "  Contract Testing (Pact):       PASSED                "
+          echo "  Multi-JDK Matrix (17, 21):     PASSED                "
+          echo "  Package & Artifact Delivery:   SUCCESS               "
+          echo "======================================================="
