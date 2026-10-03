@@ -24,6 +24,14 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 
 ---
 
+## Unit 3 Experiments Matrix
+
+| Experiment | Title | Conceptual Focus | Test Suite |
+| :--- | :--- | :--- | :--- |
+| **Exp 3.1.1** | **Event-Driven Kafka & Reliability Mechanisms** | Asynchronous Post Scheduling, Exponential Backoff Retries, Dead-Letter Queues (DLQ), Idempotency Pattern via Event Tracking | `KafkaReliabilityIntegrationTest`, `KafkaEventControllerIntegrationTest` |
+
+---
+
 ## Architecture & Design Highlights
 
 1. **Standardized Response Envelope**: Consistent `ApiResponse<T>`, `PagedResponse<T>`, and `ApiErrorResponse` structures across all operations.
@@ -34,6 +42,10 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 6. **Role-Based Access Control (RBAC)**: Fine-grained security guards via `@PreAuthorize("hasRole('ADMIN')")` protecting administrative dashboards, post purge operations, and user audits.
 7. **AES-256-GCM Data Encryption at Rest**: Encrypts sensitive OAuth client secrets and platform tokens using 256-bit symmetric encryption in Galois/Counter Mode with unique IVs and tamper-detection authentication tags.
 8. **Token Rotation & Replay Mitigation**: Automatically invalidates refresh tokens upon use, issuing fresh token pairs; any attempted token reuse triggers immediate security revocation across all active sessions.
+9. **Asynchronous Event-Driven Decoupling**: Offloads scheduled post creation and publishing to Apache Kafka (`social-scheduled-posts`), enabling horizontal scaling and sub-millisecond API response latency.
+10. **Exponential Backoff Retry Strategy**: Automatically re-attempts transient processing failures with progressive delays, preventing downstream system exhaustion without blocking other message partitions.
+11. **Dead-Letter Queue (DLQ) & Forensics**: Automatically isolates poison pill events and retry-exhausted messages into `social-scheduled-posts.DLT` with full exception stack traces, enabling administrative audit and one-click replay recovery.
+12. **Idempotency via Event Tracking**: Enforces deduplication using an ACID-compliant `processed_events` tracking table, guaranteeing that duplicate messages under Kafka's at-least-once delivery are recognized and skipped with zero side effects.
 
 ---
 
@@ -56,7 +68,16 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 - `GET /api/v1/credentials/{serviceName}` - Retrieve credential with masked secrets/tokens (Authenticated).
 - `GET /api/v1/credentials/{serviceName}/raw-audit` - Audit raw encrypted database columns proving zero plaintext exposure (`ROLE_ADMIN`).
 
-### 4. Posts Management (`/api/v1/posts`)
+### 4. Event-Driven Kafka Reliability & Scheduled Posts (`/api/v1/events`) - Exp 3.1.1
+- `POST /api/v1/events/scheduled-posts` - Asynchronously dispatch scheduled post event to Kafka (`202 Accepted`).
+- `POST /api/v1/events/scheduled-posts/idempotent-test` - Emits duplicate events with identical `eventId` to verify deduplication.
+- `POST /api/v1/events/scheduled-posts/simulate-failure?mode=TRANSIENT` - Test exponential backoff retry and DLQ routing (`TRANSIENT` or `FATAL`).
+- `GET /api/v1/events/dlq` - Inspect all Dead Letter Queue (DLQ) messages, failure causes, and retry counts.
+- `GET /api/v1/events/dlq/{id}` - Retrieve diagnostic details for specific DLQ record.
+- `POST /api/v1/events/dlq/{id}/replay` - Recover and re-dispatch failed DLQ event to main topic for processing.
+- `GET /api/v1/events/idempotency/{eventId}` - Query persistent idempotency audit status for given event UUID.
+
+### 5. Posts Management (`/api/v1/posts`)
 - `POST /api/v1/posts` - Create post with Bean Validation.
 - `GET /api/v1/posts` - Paginated and sorted post feed (`page`, `size`, `sortBy`, `direction`).
 - `GET /api/v1/posts/{id}` - Retrieve post by ID (Cached in memory).
@@ -66,7 +87,7 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 - `PATCH /api/v1/posts/{id}/status` - Update post status (`DRAFT`, `PUBLISHED`, `ARCHIVED`).
 - `DELETE /api/v1/posts/{id}` - Delete post.
 
-### 5. Comments Management (`/api/v1/posts/{postId}/comments`)
+### 6. Comments Management (`/api/v1/posts/{postId}/comments`)
 - `POST /api/v1/posts/{postId}/comments` - Add comment with email format validation.
 - `GET /api/v1/posts/{postId}/comments` - List comments for post.
 
@@ -78,7 +99,19 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 ```bash
 ./mvnw clean test
 ```
-*Executes all 26 unit and integration tests across CRUD, Validation, Logging, Pagination, Caching, JWT Security, and AES Encryption.*
+*Executes all 36 unit and integration tests across REST, Validation, Logging, Pagination, Caching, JWT Security, AES-256 Encryption, and Kafka Reliability (Asynchronous Events, Exponential Backoff, DLQ, Idempotency).*
+
+### Running Kafka Reliability Tests Specifically
+```bash
+./mvnw test -Dtest=KafkaReliabilityIntegrationTest
+```
+
+### Starting Apache Kafka & Kafka-UI via Docker (KRaft Mode)
+```bash
+docker compose -f docker-compose-kafka.yml up -d
+```
+- Kafka Broker: `localhost:9092`
+- Kafka-UI Web Console: `http://localhost:8085`
 
 ### Starting the Application Server
 ```bash
@@ -91,3 +124,4 @@ Server runs on: `http://localhost:8080`
 - JDBC URL: `jdbc:h2:mem:socialdb`
 - Username: `sa`
 - Password: *(blank)*
+
