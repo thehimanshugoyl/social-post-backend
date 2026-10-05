@@ -13,25 +13,25 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 
 ## Unit 2 Experiments Matrix
 
-| Experiment | Title | Conceptual Focus | Test Suite |
-| :--- | :--- | :--- | :--- |
-| **Exp 2.1.1** | **RESTful API Design & Validation** | Layered Architecture, Bean Validation (`@Valid`), Standardized Envelopes (`ApiResponse<T>`), CORS Configuration | `PostControllerIntegrationTest` |
-| **Exp 2.1.2** | **Global Exception Handling & Logging** | `@RestControllerAdvice`, Uniform `ApiErrorResponse`, SLF4J/Logback, MDC Correlation IDs for Distributed Request Tracing | `StructuredLoggingAndExceptionHandlingTest` |
-| **Exp 2.2.1** | **Pagination & Dynamic Sorting** | Spring Data `Pageable`, Multi-field Dynamic Sorting, Bounded Page Limits, Zero-based Page Indexing | `PaginationAndSortingTest` |
-| **Exp 2.2.2** | **Caching & Database Optimization** | In-Memory Caching (`@Cacheable`, `@CachePut`, `@CacheEvict`), Eliminating N+1 via `JOIN FETCH`, Native SQL Aggregations | `CachingAndQueryOptimizationTest` |
-| **Exp 2.3.1** | **JWT Authentication & RBAC** | Stateless Security Filter Chain, HMAC-SHA256 JWT Issuance/Validation, `OncePerRequestFilter`, Role-Based Access Control (`@PreAuthorize`) | `SecurityAndJwtIntegrationTest` |
-| **Exp 2.3.2** | **AES-256 Encryption & Token Lifecycle** | Authenticated AES-256-GCM Encryption with 96-bit IV & 128-bit Tag, OAuth Credential Security at Rest, Token Rotation & Replay Attack Mitigation | `EncryptionAndTokenLifecycleTest` |
+| Experiment | Title | Conceptual Focus | Test Suite | Lab Report (.docx) | Generator Script |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Exp 2.1.1** | **RESTful API Design & Validation** | Layered Architecture, Bean Validation (`@Valid`), Standardized Envelopes (`ApiResponse<T>`), CORS Configuration | [`PostControllerIntegrationTest`](src/test/java/com/himanshu/social_post_backend/PostControllerIntegrationTest.java) | [FSD 2.1.1.docx](docs/lab-reports/FSD%202.1.1.docx) | [`generate_docx_211.py`](generate_docx_211.py) |
+| **Exp 2.1.2** | **Global Exception Handling & Logging** | `@RestControllerAdvice`, Uniform `ApiErrorResponse`, SLF4J/Logback, MDC Correlation IDs for Distributed Request Tracing | [`StructuredLoggingAndExceptionHandlingTest`](src/test/java/com/himanshu/social_post_backend/StructuredLoggingAndExceptionHandlingTest.java) | [FSD 2.1.2.docx](docs/lab-reports/FSD%202.1.2.docx) | [`generate_docx_212.py`](generate_docx_212.py) |
+| **Exp 2.2.1** | **Pagination & Dynamic Sorting** | Spring Data `Pageable`, Multi-field Dynamic Sorting, Bounded Page Limits, Zero-based Page Indexing | [`PaginationAndSortingTest`](src/test/java/com/himanshu/social_post_backend/PaginationAndSortingTest.java) | [FSD 2.2.1.docx](docs/lab-reports/FSD%202.2.1.docx) | [`generate_docx_221.py`](generate_docx_221.py) |
+| **Exp 2.2.2** | **Caching & Database Optimization** | In-Memory Caching (`@Cacheable`, `@CachePut`, `@CacheEvict`), Eliminating N+1 via `JOIN FETCH`, Native SQL Aggregations | [`CachingAndQueryOptimizationTest`](src/test/java/com/himanshu/social_post_backend/CachingAndQueryOptimizationTest.java) | [FSD 2.2.2.docx](docs/lab-reports/FSD%202.2.2.docx) | [`generate_docx_222.py`](generate_docx_222.py) |
+| **Exp 2.3.1** | **JWT Authentication & RBAC** | Stateless Security Filter Chain, HMAC-SHA256 JWT Issuance/Validation, `OncePerRequestFilter`, Role-Based Access Control (`@PreAuthorize`) | [`SecurityAndJwtIntegrationTest`](src/test/java/com/himanshu/social_post_backend/SecurityAndJwtIntegrationTest.java) | [FSD 2.3.1.docx](docs/lab-reports/FSD%202.3.1.docx) | [`generate_docx_231.py`](generate_docx_231.py) |
+| **Exp 2.3.2** | **AES-256 Encryption & Token Lifecycle** | Authenticated AES-256-GCM Encryption with 96-bit IV & 128-bit Tag, OAuth Credential Security at Rest, Token Rotation & Replay Attack Mitigation | [`EncryptionAndTokenLifecycleTest`](src/test/java/com/himanshu/social_post_backend/EncryptionAndTokenLifecycleTest.java) | [FSD 2.3.2.docx](docs/lab-reports/FSD%202.3.2.docx) | [`generate_docx_232.py`](generate_docx_232.py) |
 
 ---
 
 ## Unit 3 Experiments Matrix
 
-| Experiment | Title | Conceptual Focus | Test Suite |
-| :--- | :--- | :--- | :--- |
-| **Exp 3.1.1** | **Event-Driven Kafka & Reliability Mechanisms** | Asynchronous Post Scheduling, Exponential Backoff Retries, Dead-Letter Queues (DLQ), Idempotency Pattern via Event Tracking (CO2-BT2, CO3-BT3, CO5-BT5) | `KafkaReliabilityIntegrationTest`, `KafkaEventControllerIntegrationTest` |
-| **Exp 3.1.2** | **Advanced Reliability & Fault-Tolerance Evaluation** | Concurrent Race Condition Idempotency, Poison-Pill Isolation, Bulk DLQ Remediation & Replay, Reliability Observability Metrics (CO5-BT5, CO6-BT6) | `KafkaAdvancedReliabilityIntegrationTest` |
-| **Exp 3.2.1** | **Continuous Integration (CI) Pipeline** | Automated CI Multi-JDK Build Matrix, Isolated Unit Testing (JUnit 5/Mockito), API Integration (MockMvc), Consumer-Driven Contract Testing (Pact V4), Infrastructure Testing (Testcontainers), Automated GitHub Actions Workflow (CO6-BT6) | `PostServiceUnitTest`, `PostContractTest`, `SocialPostTestcontainersIntegrationTest` |
-| **Exp 3.3.1** | **Full-Stack Application Integration** | React (Vite) Frontend Connection, JWT Authentication Flow, Multi-Channel Composer, Kafka Scheduling Calendar, Native SQL Analytics, Centralized Toast Observability (CO5-BT5, CO6-BT6) | Frontend React Suite (`post-composer`) & REST APIs |
+| Experiment | Title | Conceptual Focus | Test Suite | Lab Report (.docx) | Generator Script |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Exp 3.1.1** | **Event-Driven Kafka & Reliability Mechanisms** | Asynchronous Post Scheduling, Exponential Backoff Retries, Dead-Letter Queues (DLQ), Idempotency Pattern via Event Tracking (CO2-BT2, CO3-BT3, CO5-BT5) | [`KafkaReliabilityIntegrationTest`](src/test/java/com/himanshu/social_post_backend/KafkaReliabilityIntegrationTest.java) | [FSD 3.1.1.docx](docs/lab-reports/FSD%203.1.1.docx) | [`generate_docx_311.py`](generate_docx_311.py) |
+| **Exp 3.1.2** | **Advanced Reliability & Fault-Tolerance Evaluation** | Concurrent Race Condition Idempotency, Poison-Pill Isolation, Bulk DLQ Remediation & Replay, Reliability Observability Metrics (CO5-BT5, CO6-BT6) | [`KafkaAdvancedReliabilityIntegrationTest`](src/test/java/com/himanshu/social_post_backend/KafkaAdvancedReliabilityIntegrationTest.java) | [FSD 3.1.2.docx](docs/lab-reports/FSD%203.1.2.docx) | [`generate_docx_312.py`](generate_docx_312.py) |
+| **Exp 3.2.1** | **Continuous Integration (CI) Pipeline** | Automated CI Multi-JDK Build Matrix, Isolated Unit Testing (JUnit 5/Mockito), API Integration (MockMvc), Consumer-Driven Contract Testing (Pact V4), Infrastructure Testing (Testcontainers), Automated GitHub Actions Workflow (CO6-BT6) | [`PostServiceUnitTest`](src/test/java/com/himanshu/social_post_backend/PostServiceUnitTest.java), [`PostContractTest`](src/test/java/com/himanshu/social_post_backend/PostContractTest.java) | [FSD 3.2.1.docx](docs/lab-reports/FSD%203.2.1.docx) | [`generate_docx_321.py`](generate_docx_321.py) |
+| **Exp 3.3.1** | **Full-Stack Application Integration** | React (Vite) Frontend Connection, JWT Authentication Flow, Multi-Channel Composer, Kafka Scheduling Calendar, Native SQL Analytics, Centralized Toast Observability (CO5-BT5, CO6-BT6) | Frontend React Suite (`post-composer`) & REST APIs | [FSD 3.3.1.docx](docs/lab-reports/FSD%203.3.1.docx) | [`generate_docx_331.py`](generate_docx_331.py) |
 
 ---
 
@@ -107,6 +107,27 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 ```
 *Executes all 48 unit, integration, contract, and infrastructure tests across Units 2 and 3.*
 
+### Running Unit 2 Tests Specifically
+```bash
+# Exp 2.1.1: RESTful CRUD APIs & Bean Validation
+./mvnw test -Dtest=PostControllerIntegrationTest
+
+# Exp 2.1.2: Global Exception Handling & MDC Request Tracing
+./mvnw test -Dtest=StructuredLoggingAndExceptionHandlingTest
+
+# Exp 2.2.1: Pagination & Multi-field Dynamic Sorting
+./mvnw test -Dtest=PaginationAndSortingTest
+
+# Exp 2.2.2: In-Memory Caching & N+1 JOIN FETCH Resolution
+./mvnw test -Dtest=CachingAndQueryOptimizationTest
+
+# Exp 2.3.1: JWT Authentication & Role-Based Access Control (RBAC)
+./mvnw test -Dtest=SecurityAndJwtIntegrationTest
+
+# Exp 2.3.2: AES-256-GCM Encryption & Token Lifecycle Rotation
+./mvnw test -Dtest=EncryptionAndTokenLifecycleTest
+```
+
 ### Running CI & Contract Tests Specifically (Exp 3.2.1)
 ```bash
 # Isolated Unit Tests (JUnit 5 & Mockito)
@@ -127,6 +148,24 @@ A production-grade, enterprise-ready Spring Boot backend demonstrating scalable 
 # Exp 3.1.2: Advanced Reliability (Concurrent Race Condition Idempotency, Poison Pills, Bulk DLQ Replay)
 ./mvnw test -Dtest=KafkaAdvancedReliabilityIntegrationTest
 ```
+
+### Generating All Lab Report Documents (.docx)
+```bash
+# Unit 2 Lab Report Generators
+python generate_docx_211.py
+python generate_docx_212.py
+python generate_docx_221.py
+python generate_docx_222.py
+python generate_docx_231.py
+python generate_docx_232.py
+
+# Unit 3 Lab Report Generators
+python generate_docx_311.py
+python generate_docx_312.py
+python generate_docx_321.py
+python generate_docx_331.py
+```
+*Generated reports are saved in [`docs/lab-reports/`](docs/lab-reports/) and `Downloads/`.*
 
 ### Starting Apache Kafka & Kafka-UI via Docker (KRaft Mode)
 ```bash

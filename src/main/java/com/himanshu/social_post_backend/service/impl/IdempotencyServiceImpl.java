@@ -18,6 +18,7 @@ public class IdempotencyServiceImpl implements IdempotencyService {
     private static final Logger log = LoggerFactory.getLogger(IdempotencyServiceImpl.class);
 
     private final ProcessedEventRepository processedEventRepository;
+    private final java.util.concurrent.ConcurrentHashMap<String, Boolean> activeClaims = new java.util.concurrent.ConcurrentHashMap<>();
 
     public IdempotencyServiceImpl(ProcessedEventRepository processedEventRepository) {
         this.processedEventRepository = processedEventRepository;
@@ -43,10 +44,17 @@ public class IdempotencyServiceImpl implements IdempotencyService {
 
     @Override
     @Transactional
-    public boolean tryClaimEventProcessing(String eventId, String eventType, String correlationId) {
+    public synchronized boolean tryClaimEventProcessing(String eventId, String eventType, String correlationId) {
         if (eventId == null || eventId.isBlank()) {
             return false;
         }
+        // Atomic in-memory gate: guarantees exactly one thread wins concurrent race conditions
+        if (activeClaims.putIfAbsent(eventId, Boolean.TRUE) != null) {
+            log.warn("[Idempotency] In-flight race condition detected for eventId: '{}'. Rejecting concurrent claim.", eventId);
+            markEventDuplicateSkipped(eventId);
+            return false;
+        }
+
         if (processedEventRepository.existsByEventId(eventId)) {
             markEventDuplicateSkipped(eventId);
             return false;
@@ -61,7 +69,7 @@ public class IdempotencyServiceImpl implements IdempotencyService {
             );
             processedEventRepository.saveAndFlush(newEvent);
             return true;
-        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+        } catch (Exception ex) {
             log.warn("[Idempotency] Concurrent race condition safely intercepted for eventId: '{}'. Skipping duplicate.", eventId);
             markEventDuplicateSkipped(eventId);
             return false;
